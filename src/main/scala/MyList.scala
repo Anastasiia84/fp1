@@ -32,24 +32,20 @@ import MyList.*
 
 def maxBy[A](xs: MyList[A], f: A => Int): Option[A] =
   @tailrec
-  def go(xs: MyList[A], f: A => Int, maxN: Int, repeated: Boolean, max: A): Option[A] =
+  def go(xs: MyList[A], f: A => Int, maxN: Int, max: Option[A]): Option[A] =
     xs match
-      case MyNil =>
-        if (repeated)
-          None
-        else
-          Some(max)
+      case MyNil => max
       case MyCons(hd, tl) =>
-        if (f(hd) == maxN)
-          go(tl, f, maxN, true, hd)
-        else
+        if (f(hd) >= maxN)
           if (f(hd) > maxN)
-            go(tl, f, f(hd), false, hd)
+            go(tl, f, f(hd), Some(hd))
           else
-            go(tl, f, maxN, repeated, max)
+            go(tl, f, maxN, None)
+        else
+          go(tl, f, maxN, max)
   xs match
     case MyNil => None
-    case MyCons(hd, tl) => go(tl, f, f(hd), false, hd)
+    case MyCons(hd, tl) => go(tl, f, f(hd), Some(hd))
 
 @tailrec
 def move[A](xs: MyList[A], ys: MyList[A]): MyList[A] =
@@ -65,7 +61,7 @@ def prefixes[A](xs: MyList[A]): MyList[MyList[A]] =
   def go[A](xs: MyList[A], buffer: MyList[MyList[A]]): MyList[MyList[A]] =
     xs match
       case MyNil => buffer
-      case MyCons(hd, tl) => go(tl, MyCons(move(xs, MyNil), buffer))
+      case MyCons(hd, tl) => go(tl, MyCons(reverse(xs), buffer))
   go(reverse(xs), MyNil)
 
 def repeat[A](n: Int, a: A): MyList[A] =
@@ -84,7 +80,7 @@ def cycle[A](n: Int, xs: MyList[A]): MyList[A] =
       buffer
     else
       go(n - 1, xs, move(xs, buffer))
-  go(n, move(xs, MyNil), MyNil)
+  go(n, reverse(xs), MyNil)
 
 @main
 def main(): Unit = {
