@@ -82,6 +82,17 @@ def cycle[A](n: Int, xs: MyList[A]): MyList[A] =
       go(n - 1, xs, move(xs, buffer))
   go(n, reverse(xs), MyNil)
 
+def traverse[A, B](xs: MyList[A], f: A => Either[String, B]): Either[String, MyList[B]] =
+  xs match
+    case MyNil => Right(MyNil)
+    case MyCons(hd, tl) =>
+      f(hd) match
+        case Left(str) => Left(str)
+        case Right(b) =>
+          traverse(tl, f) match
+            case Left(str) => Left(str)
+            case Right(list) => Right(MyCons(b, list))
+
 @main
 def main(): Unit = {
   println("Hello world!")
